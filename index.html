@@ -2,25 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Flash SOP Bypass PoC</title>
+  <title>🔓 Flash SOP Bypass PoC</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    code {
+      background-color: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🔓 Flash SOP Bypass Proof of Concept</h1>
+  <h1>🔓 Flash SOP Bypass - Proof of Concept</h1>
 
   <p>
-    This PoC demonstrates how a malicious domain can use a Flash SWF file
-    to make authenticated requests to:
-    <strong>https://blog.littlebrowniebakers.com</strong>
+    This PoC demonstrates how a malicious domain can exploit an insecure
+    <code>crossdomain.xml</code> configuration to perform authenticated requests to:
   </p>
 
+  <p><strong>🔗 https://blog.littlebrowniebakers.com</strong></p>
+
   <p>
-    If the target domain exposes a <code>crossdomain.xml</code> file with:
+    The vulnerable Flash cross-domain policy file contains the following rule:
   </p>
 
   <pre><code>&lt;allow-access-from domain="*" /&gt;</code></pre>
 
   <p>
-    Then the response from authenticated endpoints will be accessible to this SWF file below:
+    This allows any origin to send and read requests using Flash, completely bypassing
+    the browser’s Same-Origin Policy (SOP). As a result, an attacker can:
+  </p>
+
+  <ul>
+    <li>Send authenticated requests to the application</li>
+    <li>Read server responses containing sensitive user data</li>
+    <li>Perform actions on behalf of the victim</li>
+  </ul>
+
+  <h2>🎬 Live Test</h2>
+  <p>
+    The embedded SWF below attempts to send a request to <code>/robots.txt</code> on the target domain.
+    If the <code>crossdomain.xml</code> is misconfigured, the Flash file will be able to access the response.
   </p>
 
   <object width="1" height="1"
@@ -30,7 +62,7 @@
   </object>
 
   <p style="color: gray;">
-    Note: The request is being made silently. If Flash is enabled and policy is open, it will succeed.
+    Note: The request is performed silently in the background. If Flash is enabled and the policy allows all origins, it will succeed.
   </p>
 </body>
 </html>
