@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🔓 Flash SOP Bypass PoC</title>
+  <title>🔓 Flash SOP Bypass - PoC</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f8f9fa;
+      padding: 40px;
+      background-color: #f9f9f9;
       color: #333;
+    }
+    h1 {
+      color: #d9534f;
     }
     code {
       background-color: #eee;
@@ -19,29 +22,26 @@
       background-color: #eee;
       padding: 10px;
       border-radius: 4px;
+      overflow-x: auto;
+    }
+    ul {
+      margin-top: 0;
     }
   </style>
 </head>
 <body>
+
   <h1>🔓 Flash SOP Bypass - Proof of Concept</h1>
 
-  <p>
-    This PoC demonstrates how a malicious domain can exploit an insecure
-    <code>crossdomain.xml</code> configuration to perform authenticated requests to:
-  </p>
+  <p>This PoC demonstrates how a malicious domain can exploit an insecure <code>crossdomain.xml</code> configuration to perform authenticated requests to:</p>
 
   <p><strong>🔗 https://blog.littlebrowniebakers.com</strong></p>
 
-  <p>
-    The vulnerable Flash cross-domain policy file contains the following rule:
-  </p>
+  <p>The vulnerable Flash cross-domain policy file contains the following rule:</p>
 
   <pre><code>&lt;allow-access-from domain="*" /&gt;</code></pre>
 
-  <p>
-    This allows any origin to send and read requests using Flash, completely bypassing
-    the browser’s Same-Origin Policy (SOP). As a result, an attacker can:
-  </p>
+  <p>This allows any origin to send and read requests using Flash, completely bypassing the browser’s Same-Origin Policy (SOP). As a result, an attacker can:</p>
 
   <ul>
     <li>Send authenticated requests to the application</li>
@@ -50,10 +50,7 @@
   </ul>
 
   <h2>🎬 Live Test</h2>
-  <p>
-    The embedded SWF below attempts to send a request to <code>/robots.txt</code> on the target domain.
-    If the <code>crossdomain.xml</code> is misconfigured, the Flash file will be able to access the response.
-  </p>
+  <p>The embedded SWF below attempts to send a request to <code>/robots.txt</code> on the target domain. If the <code>crossdomain.xml</code> is misconfigured, the Flash file will be able to access the response.</p>
 
   <object width="1" height="1"
           type="application/x-shockwave-flash"
@@ -64,5 +61,6 @@
   <p style="color: gray;">
     Note: The request is performed silently in the background. If Flash is enabled and the policy allows all origins, it will succeed.
   </p>
+
 </body>
 </html>
