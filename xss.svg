@@ -1,5 +1,5 @@
 <svg width="6000" height="6000"> <g>
 <foreignObject width="6000" height="6000">
 <body xmlns="http://www.w3.org/1999/xhtml">
-<iframe src="http://192.168.1.6:1234"></iframe>
+<iframe src="http://192.168.1.6:2000/rs.php"></iframe>
 </body> </foreignObject> </g></svg>
